@@ -39,7 +39,9 @@ describe('ReservationsService', () => {
     status: 'active',
   };
 
-  const mockReservationModel = jest.fn().mockImplementation(() => mockReservation);
+  const mockReservationModel = jest
+    .fn()
+    .mockImplementation(() => mockReservation);
   mockReservationModel.find = jest.fn();
   mockReservationModel.findById = jest.fn();
   mockReservationModel.findOne = jest.fn();
@@ -103,21 +105,26 @@ describe('ReservationsService', () => {
 
       // Mock implementations
       mockConcertsService.findOne.mockResolvedValue(mockConcert);
-      
+
       // Mock findOne to return null directly (no existing reservation)
       mockReservationModel.findOne.mockResolvedValue(null);
-      
+
       // Mock the constructor and save
       mockReservationModel.mockReturnValueOnce(savedReservation);
-      
+
       mockConcertsService.updateReservedSeats.mockResolvedValue(mockConcert);
       mockActionLogsService.createLog.mockResolvedValue({});
 
       const result = await service.create(createReservationDto);
-      
+
       expect(result).toBeDefined();
-      expect(mockConcertsService.findOne).toHaveBeenCalledWith('507f1f77bcf86cd799439012');
-      expect(mockConcertsService.updateReservedSeats).toHaveBeenCalledWith('507f1f77bcf86cd799439012', 1);
+      expect(mockConcertsService.findOne).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+      );
+      expect(mockConcertsService.updateReservedSeats).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+        1,
+      );
     });
 
     it('should throw BadRequestException if concert is cancelled', async () => {
@@ -128,14 +135,16 @@ describe('ReservationsService', () => {
 
       const cancelledConcert = { ...mockConcert, status: 'cancelled' };
       mockConcertsService.findOne.mockResolvedValue(cancelledConcert);
-      
+
       // Reset findOne mock to return null (no existing reservation)
       mockReservationModel.findOne.mockResolvedValue(null);
 
       await expect(service.create(createReservationDto)).rejects.toThrow(
         BadRequestException,
       );
-      expect(mockConcertsService.findOne).toHaveBeenCalledWith('507f1f77bcf86cd799439012');
+      expect(mockConcertsService.findOne).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+      );
     });
 
     it('should throw BadRequestException if concert is sold out', async () => {
@@ -144,9 +153,13 @@ describe('ReservationsService', () => {
         concertId: '507f1f77bcf86cd799439012',
       };
 
-      const soldOutConcert = { ...mockConcert, totalSeats: 100, reservedSeats: 100 };
+      const soldOutConcert = {
+        ...mockConcert,
+        totalSeats: 100,
+        reservedSeats: 100,
+      };
       mockConcertsService.findOne.mockResolvedValue(soldOutConcert);
-      
+
       // Reset findOne mock to return null (no existing reservation)
       mockReservationModel.findOne.mockResolvedValue(null);
 
@@ -173,8 +186,11 @@ describe('ReservationsService', () => {
 
   describe('findAll', () => {
     it('should return all reservations', async () => {
-      const mockReservations = [mockReservation, { ...mockReservation, _id: '507f1f77bcf86cd799439013' }];
-      
+      const mockReservations = [
+        mockReservation,
+        { ...mockReservation, _id: '507f1f77bcf86cd799439013' },
+      ];
+
       mockReservationModel.find.mockReturnValue({
         sort: jest.fn().mockReturnValue({
           exec: jest.fn().mockResolvedValue(mockReservations),
@@ -190,7 +206,7 @@ describe('ReservationsService', () => {
   describe('findByUsername', () => {
     it('should return reservations for a specific user', async () => {
       const mockUserReservations = [mockReservation];
-      
+
       mockReservationModel.find.mockReturnValue({
         sort: jest.fn().mockReturnValue({
           exec: jest.fn().mockResolvedValue(mockUserReservations),
@@ -199,14 +215,16 @@ describe('ReservationsService', () => {
 
       const result = await service.findByUsername('testuser');
       expect(result).toEqual(mockUserReservations);
-      expect(mockReservationModel.find).toHaveBeenCalledWith({ username: 'testuser' });
+      expect(mockReservationModel.find).toHaveBeenCalledWith({
+        username: 'testuser',
+      });
     });
   });
 
   describe('findByConcert', () => {
     it('should return reservations for a specific concert', async () => {
       const mockConcertReservations = [mockReservation];
-      
+
       mockReservationModel.find.mockReturnValue({
         sort: jest.fn().mockReturnValue({
           exec: jest.fn().mockResolvedValue(mockConcertReservations),
@@ -215,17 +233,17 @@ describe('ReservationsService', () => {
 
       const result = await service.findByConcert('507f1f77bcf86cd799439012');
       expect(result).toEqual(mockConcertReservations);
-      expect(mockReservationModel.find).toHaveBeenCalledWith({ 
+      expect(mockReservationModel.find).toHaveBeenCalledWith({
         concertId: '507f1f77bcf86cd799439012',
-        status: 'reserved' 
+        status: 'reserved',
       });
     });
   });
 
   describe('cancel', () => {
     it('should cancel a reservation successfully', async () => {
-      const cancelledReservation = { 
-        ...mockReservation, 
+      const cancelledReservation = {
+        ...mockReservation,
         status: 'cancelled',
         cancelledAt: new Date(),
       };
@@ -239,12 +257,15 @@ describe('ReservationsService', () => {
       mockConcertsService.updateReservedSeats.mockResolvedValue(mockConcert);
       mockActionLogsService.createLog.mockResolvedValue({});
 
-      const result = await service.cancel('507f1f77bcf86cd799439011', 'testuser');
-      
+      const result = await service.cancel(
+        '507f1f77bcf86cd799439011',
+        'testuser',
+      );
+
       expect(result).toBeDefined();
       expect(mockConcertsService.updateReservedSeats).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439012',
-        -1
+        -1,
       );
     });
 
@@ -254,7 +275,7 @@ describe('ReservationsService', () => {
       });
 
       await expect(
-        service.cancel('507f1f77bcf86cd799439011', 'testuser')
+        service.cancel('507f1f77bcf86cd799439011', 'testuser'),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -264,19 +285,19 @@ describe('ReservationsService', () => {
       });
 
       await expect(
-        service.cancel('507f1f77bcf86cd799439011', 'wronguser')
+        service.cancel('507f1f77bcf86cd799439011', 'wronguser'),
       ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException if already cancelled', async () => {
       const cancelledReservation = { ...mockReservation, status: 'cancelled' };
-      
+
       mockReservationModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(cancelledReservation),
       });
 
       await expect(
-        service.cancel('507f1f77bcf86cd799439011', 'testuser')
+        service.cancel('507f1f77bcf86cd799439011', 'testuser'),
       ).rejects.toThrow(BadRequestException);
     });
   });

@@ -27,10 +27,7 @@ export class ConcertsService {
   async findAll(): Promise<Concert[]> {
     try {
       // ดึงทั้งหมดและเรียงตามวันที่สร้างล่าสุด
-      return await this.concertModel
-        .find()
-        .sort({ createdAt: -1 })
-        .exec();
+      return await this.concertModel.find().sort({ createdAt: -1 }).exec();
     } catch (error) {
       throw new Error(`ไม่สามารถดึงข้อมูลได้: ${error.message}`);
     }
@@ -40,12 +37,12 @@ export class ConcertsService {
   async findOne(id: string): Promise<Concert> {
     try {
       const concert = await this.concertModel.findById(id).exec();
-      
+
       // ถ้าไม่เจอให้ throw error
       if (!concert) {
         throw new NotFoundException(`ไม่พบคอนเสิร์ต ID: ${id}`);
       }
-      
+
       return concert;
     } catch (error) {
       // ถ้าเป็น error จาก NotFoundException ให้ส่งต่อ
@@ -64,14 +61,16 @@ export class ConcertsService {
     try {
       // เช็คว่ามีการจองคอนเสิร์ตนี้หรือไม่ก่อนลบ
       const concert = await this.concertModel.findById(id).exec();
-      
+
       if (!concert) {
         throw new NotFoundException(`ไม่พบคอนเสิร์ต ID: ${id}`);
       }
 
       // ถ้ามีคนจองแล้ว ไม่ให้ลบ
       if (concert.reservedSeats > 0) {
-        throw new Error(`ไม่สามารถลบคอนเสิร์ตได้ เนื่องจากมีการจองแล้ว ${concert.reservedSeats} ที่นั่ง`);
+        throw new Error(
+          `ไม่สามารถลบคอนเสิร์ตได้ เนื่องจากมีการจองแล้ว ${concert.reservedSeats} ที่นั่ง`,
+        );
       }
 
       // ลบคอนเสิร์ต
@@ -91,31 +90,34 @@ export class ConcertsService {
     try {
       // ดึงข้อมูลคอนเสิร์ตปัจจุบัน
       const concert = await this.concertModel.findById(id).exec();
-      
+
       if (!concert) {
         throw new NotFoundException(`ไม่พบคอนเสิร์ต ID: ${id}`);
       }
-      
+
       // เช็คว่าที่นั่งเต็มหรือยัง
       const newReservedSeats = concert.reservedSeats + seats;
-      
+
       if (newReservedSeats > concert.totalSeats) {
         throw new Error('ที่นั่งเต็มแล้ว');
       }
-      
+
       if (newReservedSeats < 0) {
         throw new Error('จำนวนที่นั่งที่จองไม่สามารถติดลบได้');
       }
 
       // อัพเดทข้อมูล
       const updateData: any = {
-        reservedSeats: newReservedSeats
+        reservedSeats: newReservedSeats,
       };
-      
+
       // ถ้าเต็มให้เปลี่ยนสถานะ
       if (newReservedSeats >= concert.totalSeats) {
         updateData.status = 'soldout';
-      } else if (concert.status === 'soldout' && newReservedSeats < concert.totalSeats) {
+      } else if (
+        concert.status === 'soldout' &&
+        newReservedSeats < concert.totalSeats
+      ) {
         updateData.status = 'active';
       }
 
@@ -123,11 +125,11 @@ export class ConcertsService {
       const updatedConcert = await this.concertModel
         .findByIdAndUpdate(id, updateData, { new: true })
         .exec();
-        
+
       if (!updatedConcert) {
         throw new NotFoundException(`ไม่สามารถอัพเดทคอนเสิร์ต ID: ${id}`);
       }
-      
+
       return updatedConcert;
     } catch (error) {
       if (error instanceof NotFoundException) {

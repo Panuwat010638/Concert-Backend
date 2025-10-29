@@ -10,7 +10,7 @@ import { ActionLogsModule } from '../action-logs/action-logs.module';
   imports: [
     // ลงทะเบียน Schema กับ MongoDB
     MongooseModule.forFeature([
-      { name: Reservation.name, schema: ReservationSchema }
+      { name: Reservation.name, schema: ReservationSchema },
     ]),
     // import ConcertsModule เพื่อใช้ ConcertsService
     ConcertsModule,

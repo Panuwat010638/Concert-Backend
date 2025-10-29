@@ -7,9 +7,7 @@ import { Concert, ConcertSchema } from './schemas/concert.schema';
 @Module({
   imports: [
     // ลงทะเบียน Schema กับ MongoDB
-    MongooseModule.forFeature([
-      { name: Concert.name, schema: ConcertSchema }
-    ]),
+    MongooseModule.forFeature([{ name: Concert.name, schema: ConcertSchema }]),
   ],
   controllers: [ConcertsController],
   providers: [ConcertsService],

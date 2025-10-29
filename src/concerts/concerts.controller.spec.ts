@@ -76,7 +76,9 @@ describe('ConcertsController', () => {
 
       mockConcertsService.create.mockRejectedValue(new Error('Database error'));
 
-      await expect(controller.create(createConcertDto)).rejects.toThrow(HttpException);
+      await expect(controller.create(createConcertDto)).rejects.toThrow(
+        HttpException,
+      );
       await expect(controller.create(createConcertDto)).rejects.toMatchObject({
         status: HttpStatus.BAD_REQUEST,
       });
@@ -85,7 +87,10 @@ describe('ConcertsController', () => {
 
   describe('findAll', () => {
     it('should return all concerts', async () => {
-      const mockConcerts = [mockConcert, { ...mockConcert, _id: '507f1f77bcf86cd799439012' }];
+      const mockConcerts = [
+        mockConcert,
+        { ...mockConcert, _id: '507f1f77bcf86cd799439012' },
+      ];
       mockConcertsService.findAll.mockResolvedValue(mockConcerts);
 
       const result = await controller.findAll();
@@ -99,7 +104,9 @@ describe('ConcertsController', () => {
     });
 
     it('should handle findAll errors', async () => {
-      mockConcertsService.findAll.mockRejectedValue(new Error('Database error'));
+      mockConcertsService.findAll.mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await expect(controller.findAll()).rejects.toThrow(HttpException);
       await expect(controller.findAll()).rejects.toMatchObject({
@@ -118,15 +125,19 @@ describe('ConcertsController', () => {
         success: true,
         data: mockConcert,
       });
-      expect(mockConcertsService.findOne).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockConcertsService.findOne).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
     });
 
     it('should handle not found error', async () => {
       mockConcertsService.findOne.mockRejectedValue(
-        new NotFoundException('ไม่พบคอนเสิร์ต ID: invalid-id')
+        new NotFoundException('ไม่พบคอนเสิร์ต ID: invalid-id'),
       );
 
-      await expect(controller.findOne('invalid-id')).rejects.toThrow(HttpException);
+      await expect(controller.findOne('invalid-id')).rejects.toThrow(
+        HttpException,
+      );
       await expect(controller.findOne('invalid-id')).rejects.toMatchObject({
         status: HttpStatus.NOT_FOUND,
       });
@@ -135,7 +146,9 @@ describe('ConcertsController', () => {
 
   describe('remove', () => {
     it('should delete a concert successfully', async () => {
-      mockConcertsService.remove.mockResolvedValue({ message: 'ลบคอนเสิร์ต Test Concert สำเร็จ' });
+      mockConcertsService.remove.mockResolvedValue({
+        message: 'ลบคอนเสิร์ต Test Concert สำเร็จ',
+      });
 
       const result = await controller.remove('507f1f77bcf86cd799439011');
 
@@ -143,15 +156,19 @@ describe('ConcertsController', () => {
         success: true,
         message: 'ลบคอนเสิร์ตสำเร็จ',
       });
-      expect(mockConcertsService.remove).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockConcertsService.remove).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
     });
 
     it('should handle deletion errors', async () => {
       mockConcertsService.remove.mockRejectedValue(
-        new NotFoundException('ไม่พบคอนเสิร์ต ID: invalid-id')
+        new NotFoundException('ไม่พบคอนเสิร์ต ID: invalid-id'),
       );
 
-      await expect(controller.remove('invalid-id')).rejects.toThrow(HttpException);
+      await expect(controller.remove('invalid-id')).rejects.toThrow(
+        HttpException,
+      );
       await expect(controller.remove('invalid-id')).rejects.toMatchObject({
         status: HttpStatus.NOT_FOUND,
       });

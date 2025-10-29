@@ -22,7 +22,7 @@ describe('ConcertsService', () => {
       description: 'Test Description',
       totalSeats: 100,
       reservedSeats: 0,
-      status: 'active'
+      status: 'active',
     }),
   };
 
@@ -83,14 +83,19 @@ describe('ConcertsService', () => {
         throw new Error('Database error');
       });
 
-      await expect(service.create(createConcertDto)).rejects.toThrow('ไม่สามารถสร้างคอนเสิร์ตได้: Database error');
+      await expect(service.create(createConcertDto)).rejects.toThrow(
+        'ไม่สามารถสร้างคอนเสิร์ตได้: Database error',
+      );
     });
   });
 
   describe('findAll', () => {
     it('should return all concerts', async () => {
-      const mockConcerts = [mockConcert, { ...mockConcert, _id: '507f1f77bcf86cd799439012' }];
-      
+      const mockConcerts = [
+        mockConcert,
+        { ...mockConcert, _id: '507f1f77bcf86cd799439012' },
+      ];
+
       mockConcertModel.find.mockReturnValue({
         sort: jest.fn().mockReturnValue({
           exec: jest.fn().mockResolvedValue(mockConcerts),
@@ -122,7 +127,9 @@ describe('ConcertsService', () => {
 
       const result = await service.findOne('507f1f77bcf86cd799439011');
       expect(result).toEqual(mockConcert);
-      expect(mockConcertModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockConcertModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
     });
 
     it('should throw NotFoundException if concert not found', async () => {
@@ -130,7 +137,9 @@ describe('ConcertsService', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(service.findOne('507f1f77bcf86cd799439011')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('507f1f77bcf86cd799439011')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -139,15 +148,19 @@ describe('ConcertsService', () => {
       mockConcertModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockConcert),
       });
-      
+
       mockConcertModel.findByIdAndDelete.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockConcert),
       });
 
       const result = await service.remove('507f1f77bcf86cd799439011');
       expect(result).toEqual({ message: 'ลบคอนเสิร์ต Test Concert สำเร็จ' });
-      expect(mockConcertModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
-      expect(mockConcertModel.findByIdAndDelete).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(mockConcertModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
+      expect(mockConcertModel.findByIdAndDelete).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
     });
 
     it('should throw NotFoundException if concert to delete not found', async () => {
@@ -155,7 +168,9 @@ describe('ConcertsService', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(service.remove('507f1f77bcf86cd799439011')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('507f1f77bcf86cd799439011')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -164,41 +179,51 @@ describe('ConcertsService', () => {
       mockConcertModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockConcert),
       });
-      
+
       const updatedConcert = { ...mockConcert, reservedSeats: 1 };
       mockConcertModel.findByIdAndUpdate.mockReturnValue({
         exec: jest.fn().mockResolvedValue(updatedConcert),
       });
 
-      const result = await service.updateReservedSeats('507f1f77bcf86cd799439011', 1);
+      const result = await service.updateReservedSeats(
+        '507f1f77bcf86cd799439011',
+        1,
+      );
       expect(result.reservedSeats).toBe(1);
     });
 
     it('should decrement reserved seats', async () => {
       const concertWithReserved = { ...mockConcert, reservedSeats: 5 };
       const updatedConcert = { ...mockConcert, reservedSeats: 4 };
-      
+
       mockConcertModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(concertWithReserved),
       });
-      
+
       mockConcertModel.findByIdAndUpdate.mockReturnValue({
         exec: jest.fn().mockResolvedValue(updatedConcert),
       });
 
-      const result = await service.updateReservedSeats('507f1f77bcf86cd799439011', -1);
+      const result = await service.updateReservedSeats(
+        '507f1f77bcf86cd799439011',
+        -1,
+      );
       expect(result.reservedSeats).toBe(4);
     });
 
     it('should throw error when trying to reserve full concert', async () => {
-      const fullConcert = { ...mockConcert, totalSeats: 100, reservedSeats: 100 };
-      
+      const fullConcert = {
+        ...mockConcert,
+        totalSeats: 100,
+        reservedSeats: 100,
+      };
+
       mockConcertModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(fullConcert),
       });
 
       await expect(
-        service.updateReservedSeats('507f1f77bcf86cd799439011', 1)
+        service.updateReservedSeats('507f1f77bcf86cd799439011', 1),
       ).rejects.toThrow('ที่นั่งเต็มแล้ว');
     });
   });

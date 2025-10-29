@@ -14,7 +14,7 @@ export class ActionLogsController {
     try {
       // เรียกใช้ service เพื่อดึงข้อมูล
       const logs = await this.actionLogsService.getAllLogs();
-      
+
       // ส่งกลับพร้อม success status
       return {
         success: true,
@@ -36,7 +36,7 @@ export class ActionLogsController {
     try {
       // ดึง logs ของ user ที่ระบุ
       const logs = await this.actionLogsService.getLogsByUsername(username);
-      
+
       return {
         success: true,
         count: logs.length,
@@ -56,7 +56,7 @@ export class ActionLogsController {
     try {
       // ดึง logs ของคอนเสิร์ตที่ระบุ
       const logs = await this.actionLogsService.getLogsByConcert(concertId);
-      
+
       return {
         success: true,
         count: logs.length,
@@ -80,10 +80,10 @@ export class ActionLogsController {
       // แปลง string เป็น Date object
       const start = new Date(startDate);
       const end = new Date(endDate);
-      
+
       // ดึง logs ในช่วงเวลา
       const logs = await this.actionLogsService.getLogsByDateRange(start, end);
-      
+
       return {
         success: true,
         count: logs.length,

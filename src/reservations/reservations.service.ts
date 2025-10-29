@@ -1,7 +1,11 @@
 // src/reservations/reservations.service.ts
 // Service สำหรับจัดการการจองตั๋ว - แก้ไขให้บันทึก Action Log
 
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Reservation, ReservationDocument } from './schemas/reservation.schema';
@@ -12,26 +16,31 @@ import { ActionLogsService } from '../action-logs/action-logs.service';
 @Injectable()
 export class ReservationsService {
   constructor(
-    @InjectModel(Reservation.name) private reservationModel: Model<ReservationDocument>,
+    @InjectModel(Reservation.name)
+    private reservationModel: Model<ReservationDocument>,
     private concertsService: ConcertsService, // ใช้ service ของ concerts
     private actionLogsService: ActionLogsService, // เพิ่ม action logs service
   ) {}
 
   // สร้างการจองใหม่
-  async create(createReservationDto: CreateReservationDto): Promise<Reservation> {
+  async create(
+    createReservationDto: CreateReservationDto,
+  ): Promise<Reservation> {
     try {
       // 1. ดึงข้อมูลคอนเสิร์ต
-      const concert = await this.concertsService.findOne(createReservationDto.concertId);
-      
+      const concert = await this.concertsService.findOne(
+        createReservationDto.concertId,
+      );
+
       // 2. เช็คสถานะคอนเสิร์ต
       if (concert.status === 'cancelled') {
         throw new BadRequestException('คอนเสิร์ตถูกยกเลิกแล้ว');
       }
-      
+
       if (concert.status === 'soldout') {
         throw new BadRequestException('ตั๋วหมดแล้ว');
       }
-      
+
       if (concert.reservedSeats >= concert.totalSeats) {
         throw new BadRequestException('ที่นั่งเต็มแล้ว');
       }
@@ -77,7 +86,10 @@ export class ReservationsService {
 
       return savedReservation;
     } catch (error) {
-      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
         throw error;
       }
       throw new Error(`ไม่สามารถสร้างการจองได้: ${error.message}`);
@@ -121,11 +133,16 @@ export class ReservationsService {
   }
 
   // ยกเลิกการจอง
-  async cancel(reservationId: string, username: string): Promise<{ message: string }> {
+  async cancel(
+    reservationId: string,
+    username: string,
+  ): Promise<{ message: string }> {
     try {
       // 1. หาการจองที่ต้องการยกเลิก
-      const reservation = await this.reservationModel.findById(reservationId).exec();
-      
+      const reservation = await this.reservationModel
+        .findById(reservationId)
+        .exec();
+
       if (!reservation) {
         throw new NotFoundException('ไม่พบการจองนี้');
       }
@@ -146,7 +163,10 @@ export class ReservationsService {
       await reservation.save();
 
       // 5. อัพเดทจำนวนที่นั่งในคอนเสิร์ต (ลดที่นั่งที่จองแล้ว)
-      await this.concertsService.updateReservedSeats(reservation.concertId.toString(), -1);
+      await this.concertsService.updateReservedSeats(
+        reservation.concertId.toString(),
+        -1,
+      );
 
       // 6. บันทึก Action Log สำหรับการยกเลิก
       await this.actionLogsService.createLog({
@@ -160,7 +180,10 @@ export class ReservationsService {
 
       return { message: `ยกเลิกการจอง ${reservation.concertName} สำเร็จ` };
     } catch (error) {
-      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
         throw error;
       }
       throw new Error(`ไม่สามารถยกเลิกการจองได้: ${error.message}`);
@@ -171,11 +194,11 @@ export class ReservationsService {
   async findOne(id: string): Promise<Reservation> {
     try {
       const reservation = await this.reservationModel.findById(id).exec();
-      
+
       if (!reservation) {
         throw new NotFoundException(`ไม่พบการจอง ID: ${id}`);
       }
-      
+
       return reservation;
     } catch (error) {
       if (error instanceof NotFoundException) {

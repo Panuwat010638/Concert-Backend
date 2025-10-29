@@ -19,9 +19,12 @@ export class ReservationsController {
 
   // POST /api/reservations - จองตั๋ว
   @Post()
-  async create(@Body(ValidationPipe) createReservationDto: CreateReservationDto) {
+  async create(
+    @Body(ValidationPipe) createReservationDto: CreateReservationDto,
+  ) {
     try {
-      const reservation = await this.reservationsService.create(createReservationDto);
+      const reservation =
+        await this.reservationsService.create(createReservationDto);
       return {
         success: true,
         message: 'จองตั๋วสำเร็จ',
@@ -84,7 +87,8 @@ export class ReservationsController {
   @Get('user/:username')
   async findByUsername(@Param('username') username: string) {
     try {
-      const reservations = await this.reservationsService.findByUsername(username);
+      const reservations =
+        await this.reservationsService.findByUsername(username);
       return {
         success: true,
         count: reservations.length,
@@ -105,7 +109,8 @@ export class ReservationsController {
   @Get('concert/:concertId')
   async findByConcert(@Param('concertId') concertId: string) {
     try {
-      const reservations = await this.reservationsService.findByConcert(concertId);
+      const reservations =
+        await this.reservationsService.findByConcert(concertId);
       return {
         success: true,
         count: reservations.length,

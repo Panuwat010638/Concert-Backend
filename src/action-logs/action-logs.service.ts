@@ -24,7 +24,7 @@ export class ActionLogsService {
   }): Promise<ActionLog> {
     // สร้าง document ใหม่
     const newLog = new this.actionLogModel(logData);
-    
+
     // บันทึกลงฐานข้อมูล
     return await newLog.save();
   }
@@ -66,7 +66,7 @@ export class ActionLogsService {
       .find({
         actionDate: {
           $gte: startDate, // มากกว่าหรือเท่ากับ startDate
-          $lte: endDate,   // น้อยกว่าหรือเท่ากับ endDate
+          $lte: endDate, // น้อยกว่าหรือเท่ากับ endDate
         },
       })
       .sort({ actionDate: -1 })
